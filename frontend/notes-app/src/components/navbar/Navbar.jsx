@@ -2,8 +2,7 @@ import { useState } from "react";
 import ProfileInfo from "../cards/ProfileInfo";
 import SearchBar from "../Search/SearchBar";
 import { useNavigate } from "react-router-dom";
-
-function Navbar() {
+const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState(""); 
   const navigate = useNavigate(); // Call useNavigate
 
@@ -20,7 +19,7 @@ function Navbar() {
   };
 
   return (
-    <div className="bg-white flex items-center justify-between px-6 py-6 drop-shadow">
+    <div className="bg-gray-400 flex items-center justify-between px-6 py-6 drop-shadow">
       <h2 className="text-xl font-medium text-black py-2">Notes</h2>
 
       <SearchBar
@@ -33,6 +32,7 @@ function Navbar() {
       <ProfileInfo onLogout={onLogout} />
     </div>
   );
+
 }
 
-export default Navbar;
+export default Navbar
