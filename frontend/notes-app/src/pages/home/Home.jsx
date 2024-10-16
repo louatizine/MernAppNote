@@ -5,7 +5,8 @@ import AddEditNotes from "../../pages/home/AddEditNotes";
 import { useEffect, useState } from "react";
 import Modal from "react-modal";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../../utils/axios"; // Ensure axiosInstance is imported correctly
+import axiosInstance from "../../utils/axios"; 
+import moment from "moment";
 
 function Home() {
   const [openAddEditModal, setOpenAddEditModal] = useState({
@@ -14,26 +15,39 @@ function Home() {
     data: null
   });
 
+  const [allNotes, setAllNotes] = useState([]);
   const [userInfo, setUserInfo] = useState(null);
   const navigate = useNavigate();
 
   const getUserInfo = async () => {
     try {
-      const response = await axiosInstance.get("/get-users"); // Ensure the endpoint is correct
+      const response = await axiosInstance.get("/get-users");
       if (response.data && response.data.user) {
         setUserInfo(response.data.user);
       }
     } catch (error) {
       if (error.response && error.response.status === 401) {
         localStorage.clear();
-        navigate("/login"); // Redirect to login instead of dashboard
+        navigate("/login");
       } else {
-        console.error("Error fetching user info:", error); // Log unexpected errors
+        console.error("Error fetching user info:", error);
       }
     }
   };
 
+  const getAllNotes = async () => {
+    try {
+      const response = await axiosInstance.get("/get-all-notes");
+      if (response.data && response.data.notes) {
+        setAllNotes(response.data.notes);
+      }
+    } catch (error) {
+      console.log("An unexpected error occurred while fetching notes.");
+    }
+  };
+
   useEffect(() => {
+    getAllNotes();
     getUserInfo();
   }, []);
 
@@ -42,33 +56,37 @@ function Home() {
       <Navbar userInfo={userInfo} />
       <div className="container mx-auto">
         <div className="grid grid-cols-3 gap-4 mt-8">
-          {/* You may want to map over your notes here instead of hardcoding one NoteCard */}
-          <NoteCard
-            title="Meeting with client"
-            date="2024-10-12"
-            content="Discuss project details and timeline..."
-            tags="Meeting the 7th April"
-            isPinned={true}
-            onEdit={() => {}}
-            onDeleted={() => {}}
-            onPinNote={() => {}}
-          />
+          {allNotes.map((item, index) => {
+            return (
+              <NoteCard
+                key={item._id}
+                title={item.title}
+                date={moment(item.createdOn)}
+                content={item.content}
+                tags={item.tags}
+                isPinned={item.isPinned}
+                onEdit={() => {}}
+                onDeleted={() => {}}
+                onPinNote={() => {}}
+              />
+            );
+          })}
         </div>
       </div>
 
       <button
         className="fixed bottom-4 right-4 bg-primary p-4 rounded-full shadow-lg hover:bg-blue-600 transition"
         onClick={() => {
-          setOpenAddEditModal({ isShown: true, type: 'add', data: null }); 
+          setOpenAddEditModal({ isShown: true, type: "add", data: null });
         }}
       >
-        <MdAdd className="text-[32px] text-white" /> 
+        <MdAdd className="text-[32px] text-white" />
       </button>
 
       <Modal 
         isOpen={openAddEditModal.isShown}
         onRequestClose={() => {
-          setOpenAddEditModal({ isShown: false, type: '', data: null });
+          setOpenAddEditModal({ isShown: false, type: "", data: null });
         }}
         style={{
           overlay: {

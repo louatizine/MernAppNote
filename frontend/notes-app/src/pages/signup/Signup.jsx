@@ -4,7 +4,7 @@ import PasswordInput from "../../components/inputs/PasswordInput";
 import { Link, useNavigate } from "react-router-dom";
 import { emailValidation } from "../../utils/Helper";
 import axios from "axios";
-import { BASE_URL } from "../../utils/constants";
+import { BASE_URL } from "../../utils/constants"; // Ensure BASE_URL is correctly imported
 
 const Signup = () => {
   const [name, setName] = useState("");
@@ -18,11 +18,14 @@ const Signup = () => {
     e.preventDefault();
 
     // Validate inputs
-    if (!name) {
+    const trimmedName = name.trim();  // Trim leading/trailing spaces from the name
+    const trimmedEmail = email.trim();  // Trim leading/trailing spaces from the email
+
+    if (!trimmedName) {
       setError("Please enter your name.");
       return;
     }
-    if (!emailValidation(email)) {
+    if (!emailValidation(trimmedEmail)) {
       setError("Please enter a valid email address.");
       return;
     }
@@ -36,9 +39,9 @@ const Signup = () => {
     try {
       // Send signup request to the server
       const response = await axios.post(`${BASE_URL}/create-account`, {
-        fullName: name,  // Make sure fullName matches the backend's expectation
-        email: email,
-        password: password,
+        fullname: trimmedName,  // Use trimmed name here
+        email: trimmedEmail,    // Use trimmed email
+        password: password,     // Send the password as is
       });
 
       console.log("Response:", response); // Log the response for debugging
@@ -88,7 +91,9 @@ const Signup = () => {
             />
 
             {error && <p className="text-red-700">{error}</p>}
-            <button type="submit" className="btn-primary">Create Account</button>
+            <button type="submit" className="btn-primary">
+              Create Account
+            </button>
 
             <p className="text-sm text-center mt-4">
               Already have an account?{" "}
